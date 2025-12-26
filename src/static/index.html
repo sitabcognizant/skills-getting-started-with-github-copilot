@@ -19,6 +19,29 @@
           <!-- Activities will be loaded here -->
           <p>Loading activities...</p>
         </div>
+
+        <!-- Template for activity card (clone & populate from JS) -->
+        <template id="activity-template">
+          <article class="activity-card" role="article">
+            <h4 class="activity-title">Activity Title</h4>
+            <p class="activity-desc">Short description of the activity.</p>
+
+            <!-- Participants section -->
+            <div class="participants-section">
+              <h5 class="participants-heading">Participants <span class="participants-count">(0)</span></h5>
+
+              <ul class="participants-list" aria-live="polite">
+                <!-- JS should insert <li> elements here like:
+                     <li><span class="participant-avatar">A</span><span class="participant-name">Alex Doe</span></li>
+                -->
+              </ul>
+
+              <p class="no-participants info hidden">No participants yet. Be the first to sign up!</p>
+            </div>
+
+            <!-- ...other activity controls (like a "Join" button) can go here... -->
+          </article>
+        </template>
       </section>
 
       <section id="signup-container">
