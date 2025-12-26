@@ -8,7 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
-      const response = await fetch("/activities");
+      // Avoid cached responses so UI always shows latest state
+      const response = await fetch(`/activities?_=${Date.now()}`, { cache: "no-store" });
       const activities = await response.json();
 
       // Clear loading message and previous items/options
@@ -63,8 +64,35 @@ document.addEventListener("DOMContentLoaded", () => {
             nameSpan.className = "participant-name";
             nameSpan.textContent = display;
 
+            // Delete button to unregister participant
+            const delBtn = document.createElement("button");
+            delBtn.className = "delete-participant";
+            delBtn.title = `Remove ${display}`;
+            delBtn.setAttribute('aria-label', `Remove ${display}`);
+            delBtn.textContent = "✖";
+
+            delBtn.addEventListener("click", async (ev) => {
+              ev.stopPropagation();
+              try {
+                const res = await fetch(
+                  `/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(display)}`,
+                  { method: "DELETE" }
+                );
+                const result = await res.json();
+                if (res.ok) {
+                  // Refresh activities list to reflect change
+                  await fetchActivities();
+                } else {
+                  console.error("Failed to unregister:", result);
+                }
+              } catch (error) {
+                console.error("Error unregistering participant:", error);
+              }
+            });
+
             li.appendChild(avatar);
             li.appendChild(nameSpan);
+            li.appendChild(delBtn);
             participantsList.appendChild(li);
           });
         }
@@ -105,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.className = "success";
         signupForm.reset();
         // Refresh activities to show new participant
-        fetchActivities();
+        await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
